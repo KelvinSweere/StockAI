@@ -1,4 +1,5 @@
 import yfinance as yf
+import matplotlib.pyplot as plt
 
 class dataCollecting():
 
@@ -11,13 +12,11 @@ class dataCollecting():
             self.tckr_name = tckr_name
             self.tckr = yf.Ticker(tckr_name.upper())
 
-            if not(self._checkIfPeriodLegal(period)):
-                print("period invalid")
-                return
-            else:
-                print("Hello")
+            self.data = self.tckr.history(period=period)
 
-
+            self._plot_figure(self.data['Open'], color="ro-")
+            self._plot_figure(self.data['Close'], new=False, color="bo-")
+            plt.show()
 
             #delete ticker and return value
         super().__init__()
@@ -39,11 +38,21 @@ class dataCollecting():
             print(tckr_info['sector'].lower() + " - ticker has been founded.")
             return 1
 
-    def _checkIfPeriodLegal(self, period):
-        #check string format
-        return 1
+    def _plot_figure(self, data, new=True, color="ro-", x_axis_name="Date", y_axis_name="€"):
+        #TODO: add name stock.
+
+        if(new==True):
+            plt.figure(figsize=(15, 5))
+
+        plt.plot(data, color, label='line 1', linewidth=0.5)
+        plt.grid(True)
+        plt.xlabel(x_axis_name)
+        plt.ylabel(y_axis_name)
+                
 
 
 if __name__ == "__main__":
-    dc = dataCollecting("RDSA.AS","1m")
+    # stock_name = input("Stock name... ")
+    stock_name = 'RDSA.AS'
+    dc = dataCollecting(stock_name, "2mo")
 
