@@ -24,8 +24,12 @@ class dataCollecting():
     def _checkIfTckLegal(self, tckr_name):
         try:
             tckr = yf.Ticker(tckr_name.upper())
+            
+            check_info = "not found"
 
-            tckr_info = tckr.get_info()
+            #TODO: check of goede info aankomt.
+            check_info = tckr.history(period='1min')
+            print('check_info = ' + check_info)
 
         except KeyError:
             print("Ticker " + str(tckr_name) + " is found.")
@@ -35,8 +39,12 @@ class dataCollecting():
             return 0
 
         else:
-            print(tckr_info['sector'].lower() + " - ticker has been founded.")
-            return 1
+            if(check_info != "No data found, symbol may be delisted"):
+                #TODO: print sector.
+                print("Ticker " + str(tckr_name) + " is found.")
+                return 1
+            else: 
+                return 0
 
     def _plot_figure(self, data, new=True, color="ro-", x_axis_name="Date", y_axis_name="€"):
         #TODO: add name stock.
@@ -53,6 +61,6 @@ class dataCollecting():
 
 if __name__ == "__main__":
     # stock_name = input("Stock name... ")
-    stock_name = 'RDSA.AS'
+    stock_name = 'RDSA.A'
     dc = dataCollecting(stock_name, "2mo")
 
