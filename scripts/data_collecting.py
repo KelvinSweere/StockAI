@@ -1,9 +1,10 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
+# import mplfinance as mpf
 
 class dataCollecting():
 
-    def __init__(self, tckr_name, period):
+    def __init__(self, tckr_name, period, interval):
         #check if tckr is legal.
         if not (self._checkIfTckLegal(tckr_name)):
             print("tckr is NOT legal...")
@@ -12,24 +13,29 @@ class dataCollecting():
             self.tckr_name = tckr_name
             self.tckr = yf.Ticker(tckr_name.upper())
 
-            self.data = self.tckr.history(period=period)
+            self.data = self.tckr.history(period=period, interval=interval)
 
-            self._plot_figure(self.data['Open'], color="ro-")
-            self._plot_figure(self.data['Close'], new=False, color="bo-")
+            self._plot_figure()
             plt.show()
 
             #delete ticker and return value
         super().__init__()
 
     def _checkIfTckLegal(self, tckr_name):
+        """Checks if Yahoo can get data.
+
+        Args:
+            tckr_name (str): name of the Yahoo ticker. 
+
+        Returns:
+            bool: true if data is found, false if not data is found.
+        """
         try:
             tckr = yf.Ticker(tckr_name.upper())
             
-            check_info = "not found"
+            check_info = tckr.history(period='1d', interval='1d')   #one datapoint.
 
-            #TODO: check of goede info aankomt.
-            check_info = tckr.history(period='1min')
-            print('check_info = ' + check_info)
+        #TODO: print sector.  (not downloaded jet.)
 
         except KeyError:
             print("Ticker " + str(tckr_name) + " is found.")
@@ -39,28 +45,38 @@ class dataCollecting():
             return 0
 
         else:
-            if(check_info != "No data found, symbol may be delisted"):
-                #TODO: print sector.
+            if(check_info.empty):
+                return 0
+            else:
                 print("Ticker " + str(tckr_name) + " is found.")
                 return 1
-            else: 
-                return 0
 
-    def _plot_figure(self, data, new=True, color="ro-", x_axis_name="Date", y_axis_name="€"):
-        #TODO: add name stock.
+    def _plot_figure(self):
 
-        if(new==True):
-            plt.figure(figsize=(15, 5))
-
-        plt.plot(data, color, label='line 1', linewidth=0.5)
-        plt.grid(True)
-        plt.xlabel(x_axis_name)
-        plt.ylabel(y_axis_name)
+        mpf.plot(self.data, type='candle', style='charles',
+                title=self.tckr_name,
+                ylabel='Price (€)',
+                ylabel_lower='Shares \nTraded',
+                mav=(6, 6, 9))
+        plt.show()
                 
 
 
 if __name__ == "__main__":
     # stock_name = input("Stock name... ")
-    stock_name = 'RDSA.A'
-    dc = dataCollecting(stock_name, "2mo")
+
+    """
+    interval = 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
+    period = 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max
+    """
+
+    #TODO: first scope, 1d 1m prediction. 
+
+    #TODO: goal monthly prediction.
+
+
+    stock_name = 'RDSA.AS'
+    dc = dataCollecting(stock_name, "1d", "1m")
+
+
 
