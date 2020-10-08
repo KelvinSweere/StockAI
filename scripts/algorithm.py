@@ -40,6 +40,8 @@ class Algorithm():
             print("npoints are now: ", npoints)
 
     def setMA(self):
+        """Calculates the moving avarage filter with npoints.
+        """
         self.MA = self.data.rolling(window=self.npoints).mean()
 
     def getMA(self):
@@ -51,15 +53,34 @@ class Algorithm():
             return self.MA
             
     def setRSI(self):
+        """Calculates relative strenght index (RSI) with npoints.
+        """
+
+        #TODO: Validate RSI values. (unit test.)
         #Relative strenght index.
         #70 is overbought, 30 oversold.
-        pass
+
+        delta = self.data.Close.diff()
+        up_days = delta.copy()
+        up_days[delta <= 0] = 0.0
+        down_days = abs(delta.copy())
+        down_days[delta > 0] = 0.0
+        RS_up = up_days.rolling(self.npoints).mean()
+        RS_down = down_days.rolling(self.npoints).mean()
+        self.RSI = 100-100/(1+RS_up/RS_down)
 
     def getRSI(self):
-        pass
+        try:
+            self.RSI
+        except AttributeError:
+            print("Set first RSI before getting it.")
+        else:
+            return self.RSI
 
     def setBB(self, sigma=1):
         #set bollingbands (1sigma)
+
+        # return (BB_up, BB_down)
         pass
 
     def getBB(self):
@@ -68,28 +89,29 @@ class Algorithm():
 
 if __name__ == "__main__":
 
-    def test_MA():
-        stock_name = 'RDSA.AS'
-        dc = DataCollecting(stock_name, "1d", "1m")
-        data = dc.getData()
+    stock_name = 'RDSA.AS'
+    dc = DataCollecting(stock_name, "1d", "1m")
+    data = dc.getData()
 
-        al = Algorithm(data["Open"]) 
-        al.setNpoints(7)
-        
-        al.setMA()
-        MA = al.getMA()
+    fig_RSI, ax = plt.subplots()
+    plt.plot(data['Open'])
+    plt.show()
 
+    # fig_RSI, ax = plt.subplots()
 
-        plt.plot(MA, color="r")
-        plt.plot(data["Open"], color="b")
+    al = Algorithm(data) 
+    al.setNpoints(7)
 
-        al.setNpoints(14)
+    al.setRSI()
+    RSI = al.getRSI()
 
-        al.setMA()
-        MA2 = al.getMA()
+    plt.plot(RSI)
 
-        plt.plot(MA2, color="g")
-        plt.plot(data["Open"], color="b")
-        plt.show()
+    al.setNpoints(14)
+
+    al.setRSI()
+    RSI = al.getRSI()
+
+    plt.plot(RSI)
+    plt.show()
     
-    test_MA()
