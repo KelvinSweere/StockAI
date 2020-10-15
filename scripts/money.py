@@ -1,10 +1,9 @@
 
 class InvestmentPortfolio():
 
-    def __init__(self):
-        self.paid_up_cap = 30  # 30 euro startkapitaal.
-
-        self.cash = self.paid_up_cap  
+    def __init__(self, start_val=30):
+        self.paid_up_cap = start_val  # 30 euro startkapitaal.
+        self.cash = start_val
 
         self.stock_num = 0
         self.stock_money = 0
