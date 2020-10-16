@@ -1,8 +1,10 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
-# import mplfinance as mpf
+import mplfinance as mpf
+import numpy as np
+import pandas as pd
 
-class dataCollecting():
+class DataCollecting():
 
     def __init__(self, tckr_name, period, interval):
         #check if tckr is legal.
@@ -13,10 +15,16 @@ class dataCollecting():
             self.tckr_name = tckr_name
             self.tckr = yf.Ticker(tckr_name.upper())
 
-            self.data = self.tckr.history(period=period, interval=interval)
+            self.data = self.tckr.history(period=period, interval=interval, dtype=np)
+            self.calculateDelta()  # calculate difference open, close.
+            # self._plot_figure()
+            # plt.show()
 
-            self._plot_figure()
-            plt.show()
+            self.data['Day'] = np.arange(0, len(self.data))
+
+            #change time to interger value to plot RSI and more than one date.
+
+            # self.data.index = self.data.dt.days.astype('int16')
 
             #delete ticker and return value
         super().__init__()
@@ -51,15 +59,32 @@ class dataCollecting():
                 print("Ticker " + str(tckr_name) + " is found.")
                 return 1
 
-    def _plot_figure(self):
-
+    def plotFigure(self):
         mpf.plot(self.data, type='candle', style='charles',
                 title=self.tckr_name,
                 ylabel='Price (€)',
                 ylabel_lower='Shares \nTraded',
                 mav=(6, 6, 9))
+        
         plt.show()
-                
+        """
+        plt.figure(figsize=(15, 5))
+        plt.plot(self.data['Open'],'ro-', label='line 1', linewidth=0.5)
+        plt.plot(self.data['Close'],'bo-', label='line 1', linewidth=0.5)
+        plt.grid(True)
+        plt.xlabel("Date")
+        plt.ylabel("€")
+        plt.show()
+        """
+
+    def getData(self):
+        return self.data
+
+    def calculateDelta(self):
+        self.data.insert(6, "Delta", self.data['Open']-self.data['Close'], True)
+    
+    # def getIndex(self):
+    #     return self.data.index
 
 
 if __name__ == "__main__":
@@ -71,12 +96,11 @@ if __name__ == "__main__":
     """
 
     #TODO: first scope, 1d 1m prediction. 
-
     #TODO: goal monthly prediction.
-
-
     stock_name = 'RDSA.AS'
-    dc = dataCollecting(stock_name, "1d", "1m")
+    dc = DataCollecting(stock_name, "5d", "1h")
+    dc.plotFigure()
+
 
 
 
