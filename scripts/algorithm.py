@@ -89,11 +89,17 @@ class Algorithm():
     def appendRSI(self):
         self.data['RSI'] = self.RSI
 
-    def plotRSI(self, low_band=30, high_band=70):
-        plt.plot(self.data['Day'], self.RSI)
-        plt.axhline(low_band, alpha=0.5, color='r', linestyle='--')
-        plt.axhline(high_band, alpha=0.5, color='r', linestyle='--')
-        plt.show()
+    def plotRSI(self,ax = False, low_band=30, high_band=70):
+
+        if(ax != False):
+            plt.plot(self.data['Day'], self.RSI)
+            plt.axhline(low_band, alpha=0.5, color='r', linestyle='--')
+            plt.axhline(high_band, alpha=0.5, color='r', linestyle='--') 
+        else:
+            plt.plot(self.data['Day'], self.RSI)
+            plt.axhline(low_band, alpha=0.5, color='r', linestyle='--')
+            plt.axhline(high_band, alpha=0.5, color='r', linestyle='--')
+            plt.show()
 
     def setBB(self):
         """set Bollingerbands with npoints.
@@ -114,46 +120,68 @@ class Algorithm():
         """
         return (self.BB_up, self.BB_down)
 
-    def plotBB(self):
+    def plotBB(self, ax=False):
         """Plot Bollingband with closing data.
         """
-        plt.plot(self.data['Day'], self.BB_up, color='r', alpha=0.5)
-        plt.plot(self.data['Day'], self.BB_down, color='r', alpha=0.5)
-        plt.plot(self.data['Day'], self.data['Close'], color='b')
-        plt.show()
+        if(ax != False):
+            ax.plot(self.data['Day'], self.BB_up, color='r', alpha=0.5)
+            ax.plot(self.data['Day'], self.BB_down, color='r', alpha=0.5)
+            ax.plot(self.data['Day'], self.MA, color='g', alpha=0.5)
+            ax.plot(self.data['Day'], self.data['Close'], color='b')  
+        else:
+            plt.plot(self.data['Day'], self.BB_up, color='r', alpha=0.5)
+            plt.plot(self.data['Day'], self.BB_down, color='r', alpha=0.5)
+            plt.plot(self.data['Day'], self.MA, color='g', alpha=0.5)
+            plt.plot(self.data['Day'], self.data['Close'], color='b')  
+            plt.show()
 
+    def plotAll(self):
+        fig, (ax1, ax2) = plt.subplots(2, sharex=True)
+
+        plt.title('All algorithm structures.')
+
+        ax1.set_title('Bollinger Bands')
+        self.plotBB(ax1)
+        ax1.set_ylabel("Price")
+
+        ax2.set_title('RSI')
+        self.plotRSI(ax2)
+        ax2.set_ylabel("RSI index")
+
+        plt.show()
 
 if __name__ == "__main__":
 
     stock_name = 'XRP-EUR'
-    dc = DataCollecting(stock_name, "6mo", "1d")
+    dc = DataCollecting(stock_name, "5d", "1m")
     data = dc.getData()
     
     al = Algorithm(data) 
-
 
     al.setNpoints(14)
 
     al.setBB()
     al.setRSI()
 
-    al.plotRSI()
+    # al.plotAll()
+    al.plotRSI
 
-
-    RSI = al.getRSI()    
+    # RSI = al.getRSI()
     #TODO: buy when price is under 30, sell when price is above 70.
     
-    
+
+
+    """
     for percentage, day in zip(data.RSI, data.days):
         #to buy = <2 std_dev.
         #to sell = >2 std_dev
         
         if(percentage <= 30):
             #buy...
-            print("buy stock..." + time)
+            print("buy stock..." + day)
 
         if(percentage>=70):
             #sell.
-            print("sell stock..." + time)
-    
+            print("sell stock..." + day)
+    """
 
