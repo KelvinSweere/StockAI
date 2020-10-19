@@ -9,7 +9,7 @@ class InvestmentPortfolio():
         self.stock_money = 0
 
         self.printBool = False
-        self.FEE = 0.16 / 100  #0.16% KRAKEN
+        self.TAKER_FEE = 0.26 / 100  #0.16% KRAKEN
 
     def buy(self, price):
         """Buy stocks with price per stock.
@@ -19,7 +19,7 @@ class InvestmentPortfolio():
         """
         stock_that_can_be_bought = self.cash / price
 
-        fee_price = stock_that_can_be_bought * price * self.FEE
+        fee_price = stock_that_can_be_bought * price * self.TAKER_FEE
 
         if(self.stock_money - stock_that_can_be_bought * price - fee_price < 0 ):
             stock_that_can_be_bought-=1
