@@ -33,7 +33,7 @@ class InvestmentPortfolio():
         self.cash = self.cash - self.stock_num * price
 
         if(self.printBool):
-            self.printValues()
+            self.print_values()
         
     def buy(self, price, num):
         """Buy stock with price per stock and num. 
