@@ -8,7 +8,7 @@ class DataCollecting():
 
     def __init__(self, tckr_name, period, interval):
         #check if tckr is legal.
-        if not (self._checkIfTckLegal(tckr_name)):
+        if not (self._check_if_tck_legal(tckr_name)):
             print("tckr is NOT legal...")
         else:
             print("tckr is legal...")
@@ -16,11 +16,14 @@ class DataCollecting():
             self.tckr = yf.Ticker(tckr_name.upper())
 
             self.data = self.tckr.history(period=period, interval=interval, dtype=np)
-            self.calculateDelta()  # calculate difference open, close.
+            self.calculate_delta()  # calculate difference open, close.
             # self._plot_figure()
             # plt.show()
 
             self.data['Day'] = np.arange(0, len(self.data))
+
+            self.period_str = str(period)
+            self.interval_str = str(interval)
 
             #change time to interger value to plot RSI and more than one date.
 
@@ -29,7 +32,7 @@ class DataCollecting():
             #delete ticker and return value
         super().__init__()
 
-    def _checkIfTckLegal(self, tckr_name):
+    def _check_if_tck_legal(self, tckr_name):
         """Checks if Yahoo can get data.
 
         Args:
@@ -59,7 +62,7 @@ class DataCollecting():
                 print("Ticker " + str(tckr_name) + " is found.")
                 return 1
 
-    def plotFigure(self):
+    def plot_figure(self):
         mpf.plot(self.data, type='candle', style='charles',
                 title=self.tckr_name,
                 ylabel='Price (€)',
@@ -77,10 +80,10 @@ class DataCollecting():
         plt.show()
         """
 
-    def getData(self):
+    def get_data(self):
         return self.data
 
-    def calculateDelta(self):
+    def calculate_delta(self):
         self.data.insert(6, "Delta", self.data['Open']-self.data['Close'], True)
     
     # def getIndex(self):
@@ -99,7 +102,7 @@ if __name__ == "__main__":
     #TODO: goal monthly prediction.
     stock_name = 'RDSA.AS'
     dc = DataCollecting(stock_name, "5d", "1h")
-    dc.plotFigure()
+    dc.plot_figure()
 
 
 
