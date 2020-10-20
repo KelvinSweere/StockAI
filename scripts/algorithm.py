@@ -61,8 +61,14 @@ class Algorithm():
     def appendMA(self):
         self.data['MA'] = self.MA
 
-    def setRSI(self):
+    def setRSI(self, MA_TYPE='SMA'):
         """Calculates relative strenght index (RSI) with npoints.
+
+        MA_TYPE:
+            SMA = simple moving avarge filter.
+            EWMA = exponential moving average.
+        
+        RSI validated on 20-10-2020 with: https://stackoverflow.com/questions/20526414/relative-strength-index-in-python-pandas
         """
 
         #TODO: Validate RSI values. (unit test.)
@@ -76,7 +82,19 @@ class Algorithm():
         down_days[delta > 0] = 0.0
         RS_up = up_days.rolling(self.npoints).mean()
         RS_down = down_days.rolling(self.npoints).mean()
-        self.RSI = 100-100/(1+RS_up/RS_down)
+
+        if(MA_TYPE == "SMA"):
+            self.RSI = 100-100/(1+RS_up/RS_down)
+        elif(MA_TYPE == "EWMA"):
+            # Calculate the EWMA
+            roll_up1 = up_days.ewm(span=self.npoints).mean()
+            roll_down1 = down_days.abs().ewm(span=self.npoints).mean()
+            # Calculate the RSI based on EWMA
+            RS = roll_up1 / roll_down1
+            self.RSI = 100.0 - (100.0 / (1.0 + RS))
+        else:
+            print("Wrong moving avarge indactor type")
+
 
     def getRSI(self):
         try:
@@ -152,9 +170,12 @@ class Algorithm():
 
 if __name__ == "__main__":
 
-    stock_name = 'XRP-EUR'
-    dc = DataCollecting(stock_name, "5d", "1m")
+    stock_name = 'USDT-EUR'
+    dc = DataCollecting(stock_name, "5d", "1h")
     data = dc.getData()
+
+    print("data punten = " + str(len(data.index)))
+    print("Laatste datapunt = " + str(data.index[-1]))
     
     al = Algorithm(data) 
 
@@ -163,14 +184,11 @@ if __name__ == "__main__":
     al.setBB()
     al.setRSI()
 
-    # al.plotAll()
-    al.plotRSI
+    al.plotAll()
 
     # RSI = al.getRSI()
     #TODO: buy when price is under 30, sell when price is above 70.
     
-
-
     """
     for percentage, day in zip(data.RSI, data.days):
         #to buy = <2 std_dev.
