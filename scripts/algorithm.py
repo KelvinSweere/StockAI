@@ -20,7 +20,7 @@ class Algorithm():
         self.npoints = npoints
         self.msg = False
 
-    def setMsg(self, bool):
+    def set_msg(self, bool):
         """send messages when something changes.
 
         Args:
@@ -30,7 +30,7 @@ class Algorithm():
         if(self.msg == True):
             print("Message are turend on.")
 
-    def setNpoints(self, npoints):
+    def set_npoints(self, npoints):
         """set points for the calculation.
 
         Args:
@@ -40,12 +40,19 @@ class Algorithm():
         if(self.msg == True):
             print("npoints are now: ", npoints)
 
-    def setMA(self):
+    def set_MA(self, MA_TYPE="SMA"):
         """Calculates the moving avarage filter with npoints.
         """
-        self.MA = self.data["Close"].rolling(window=self.npoints).mean()
+        MA_TYPE.upper()
+        self.MA_TYPE = MA_TYPE
+        if(MA_TYPE == "SMA"):
+            self.MA = self.data["Close"].rolling(window=self.npoints).mean()
+        elif(MA_TYPE == "EWMA"):
+            self.MA = self.data["Close"].ewm(span=self.npoints).mean()
+        else:
+            print("Invalid MA_TYPE")
 
-    def getMA(self):
+    def get_MA(self):
         """get moving avarage (MA)
 
         Returns:
@@ -58,10 +65,10 @@ class Algorithm():
         else:
             return self.MA
 
-    def appendMA(self):
+    def append_MA(self):
         self.data['MA'] = self.MA
 
-    def setRSI(self, MA_TYPE='SMA'):
+    def set_RSI(self, MA_TYPE="EWMA"):
         """Calculates relative strenght index (RSI) with npoints.
 
         MA_TYPE:
@@ -70,33 +77,30 @@ class Algorithm():
         
         RSI validated on 20-10-2020 with: https://stackoverflow.com/questions/20526414/relative-strength-index-in-python-pandas
         """
-
-        #TODO: Validate RSI values. (unit test.)
         #Relative strenght index.
         #70 is overbought, 30 oversold.
 
         delta = self.data.Close.diff()
-        up_days = delta.copy()
+        up_days, down_days = delta.copy(), abs(delta.copy())
+
         up_days[delta <= 0] = 0.0
-        down_days = abs(delta.copy())
         down_days[delta > 0] = 0.0
-        RS_up = up_days.rolling(self.npoints).mean()
-        RS_down = down_days.rolling(self.npoints).mean()
-
+        
         if(MA_TYPE == "SMA"):
-            self.RSI = 100-100/(1+RS_up/RS_down)
+            avg_up = up_days.rolling(self.npoints).mean()
+            avg_down = down_days.rolling(self.npoints).mean()
         elif(MA_TYPE == "EWMA"):
-            # Calculate the EWMA
-            roll_up1 = up_days.ewm(span=self.npoints).mean()
-            roll_down1 = down_days.abs().ewm(span=self.npoints).mean()
-            # Calculate the RSI based on EWMA
-            RS = roll_up1 / roll_down1
-            self.RSI = 100.0 - (100.0 / (1.0 + RS))
+            avg_up = up_days.ewm(com=self.npoints - 1, adjust=False).mean()
+            avg_down = down_days.ewm(com=self.npoints - 1, adjust=False).mean()
         else:
-            print("Wrong moving avarge indactor type")
+            print("Invalid MA_TYPE")
+
+        RS = avg_up / avg_down
+
+        self.RSI = 100.0 - (100.0 / (1.0 + RS))
 
 
-    def getRSI(self):
+    def get_RSI(self):
         try:
             self.RSI
         except AttributeError:
@@ -104,11 +108,10 @@ class Algorithm():
         else:
             return self.RSI
 
-    def appendRSI(self):
+    def append_RSI(self):
         self.data['RSI'] = self.RSI
 
-    def plotRSI(self,ax = False, low_band=30, high_band=70):
-
+    def plot_RSI(self,ax = False, low_band=30, high_band=70, plot_all=False):
         if(ax != False):
             plt.plot(self.data['Day'], self.RSI)
             plt.axhline(low_band, alpha=0.5, color='r', linestyle='--')
@@ -119,18 +122,19 @@ class Algorithm():
             plt.axhline(high_band, alpha=0.5, color='r', linestyle='--')
             plt.show()
 
-    def setBB(self):
+    def set_BB(self, sigma=2, MA_TYPE="EWMA"):
         """set Bollingerbands with npoints.
         """
-        #set bollingbands (1sigma)
-        self.setMA()
+        # MA = self.data["Close"].ewm(span=self.npoints).mean()
+        if(MA_TYPE == "SMA"):
+            self.set_MA("SMA")
+        elif(MA_TYPE == "EWMA"):
+            self.set_MA("EWMA")
+        
+        self.BB_up = self.MA + sigma * data['Close'].rolling(window=self.npoints).std()
+        self.BB_down = self.MA - sigma * data['Close'].rolling(window=self.npoints).std()
 
-        std_dev = self.MA.rolling(window=self.npoints).std()
-
-        self.BB_up = self.MA + (std_dev * 2)
-        self.BB_down = self.MA - (std_dev * 2)
-
-    def getBB(self):
+    def get_BB(self):
         """return bolling band values
 
         Returns:
@@ -138,7 +142,7 @@ class Algorithm():
         """
         return (self.BB_up, self.BB_down)
 
-    def plotBB(self, ax=False):
+    def plot_BB(self, ax=False):
         """Plot Bollingband with closing data.
         """
         if(ax != False):
@@ -153,40 +157,43 @@ class Algorithm():
             plt.plot(self.data['Day'], self.data['Close'], color='b')  
             plt.show()
 
-    def plotAll(self):
+    def plot_all(self):
         fig, (ax1, ax2) = plt.subplots(2, sharex=True)
 
         plt.title('All algorithm structures.')
-
         ax1.set_title('Bollinger Bands')
-        self.plotBB(ax1)
+        self.plot_BB(ax1)
         ax1.set_ylabel("Price")
 
         ax2.set_title('RSI')
-        self.plotRSI(ax2)
+        self.plot_RSI(ax2)
         ax2.set_ylabel("RSI index")
 
         plt.show()
 
 if __name__ == "__main__":
 
-    stock_name = 'USDT-EUR'
-    dc = DataCollecting(stock_name, "5d", "1h")
-    data = dc.getData()
+    stock_name = 'ETH-EUR'
+    dc = DataCollecting(stock_name, "1d", "1m")
+    data = dc.get_data()
 
     print("data punten = " + str(len(data.index)))
     print("Laatste datapunt = " + str(data.index[-1]))
     
     al = Algorithm(data) 
 
-    al.setNpoints(14)
+    al.set_npoints(20)
+    al.set_BB()
+    al.set_npoints(14)
+    al.set_RSI()
+    al.plot_all()
 
-    al.setBB()
-    al.setRSI()
+    RSI = al.get_RSI()
 
-    al.plotAll()
+    print(RSI.max())
+    print(RSI.min())
 
-    # RSI = al.getRSI()
+    # RSI = al.get_RSI()
     #TODO: buy when price is under 30, sell when price is above 70.
     
     """
