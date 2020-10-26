@@ -17,23 +17,28 @@ class InvestmentPortfolio():
         Args:
             price (float): price per stock.
         """
-        stock_that_can_be_bought = self.cash / price
+        if(self.cash > price):
+            return False
+        else:
+            stock_that_can_be_bought = self.cash / price
 
-        fee_price = stock_that_can_be_bought * price * self.TAKER_FEE
+            fee_price = stock_that_can_be_bought * price * self.TAKER_FEE
 
-        if(self.stock_money - stock_that_can_be_bought * price - fee_price < 0 ):
-            stock_that_can_be_bought-=1
+            if(self.stock_money - stock_that_can_be_bought * price - fee_price < 0 ):
+                stock_that_can_be_bought-=1
 
-        print(str(int(stock_that_can_be_bought)) +
-              " stocks bought with a price of €" + str(price) + 
-              " with fee price of €" + str(fee_price))
+            print(str(int(stock_that_can_be_bought)) +
+                    " stocks bought with a price of €" + str(price) + 
+                    " with fee price of €" + str(fee_price))
 
-        self.stock_num = int(stock_that_can_be_bought)
-        self.stock_money = self.stock_num * price + fee_price
-        self.cash = self.cash - self.stock_num * price
+            self.stock_num = int(stock_that_can_be_bought)
+            self.stock_money = self.stock_num * price + fee_price
+            self.cash = self.cash - self.stock_num * price
 
-        if(self.printBool):
-            self.print_values()
+            if(self.printBool):
+                self.print_values()
+
+            return True
         
     def buy(self, price, num):
         """Buy stock with price per stock and num. 
@@ -45,12 +50,13 @@ class InvestmentPortfolio():
         total_stock_price = price * num
         fee_price = round(total_stock_price * self.TAKER_FEE,2)
 
-        spending_money = total_stock_price + fee_price  
+        spending_money = total_stock_price + fee_price
         
         print(str(spending_money) + " = " + str(total_stock_price) + " + " + str(round(fee_price,2)))
 
         if(spending_money > self.cash): 
-            print("Can't be bought! Adjust number of stocks.")     
+            print("Can't be bought! Adjust number of stocks.")   
+            return False  
         else:
             self.cash -= round(fee_price,2)
             self.cash -= price * num
@@ -58,7 +64,7 @@ class InvestmentPortfolio():
 
             print("stock num = " + str(self.stock_num))
             print("cash = " + str(self.cash))
-
+            return True
 
 
     def sell_all(self, price):
@@ -67,19 +73,8 @@ class InvestmentPortfolio():
         Args:
             price (float): Price per stock.
         """
-        round(price,2)
-
-        print(str(round(self.stock_num, 4)) +
-            " stocks sold with a price of €" + str(price) + " per coin")
-
-        self.cash += price * self.stock_num - round(price * self.stock_num * self.TAKER_FEE, 2) 
-        self.stock_money = 0.0 #sell all.
-        self.stock_num = 0.0  #reset stocks.
-
-        if(self.printBool):
-            self.print_values()
-        
-        print("Cash status = " + str(self.cash))
+        bol = self.sell(price=price, num=self.stock_num)
+        return bol
 
     def sell(self, price, num):
         """Sell stocks with price and number of stocks.
@@ -90,31 +85,39 @@ class InvestmentPortfolio():
         """
         if(num > self.stock_num):
             print("Invalid number. Change number of stocks to sell.")
+            return False
         else:
-            print(str(round(self.stock_num, 4)) +
+            print(str(round(self.stock_num, 4)) + 
                 " stocks sold with a price of €" + str(price) + " per coin")
-
             fund_to_cash = price * num - round(price * num * self.TAKER_FEE, 2) 
 
             self.cash += fund_to_cash
-
             self.stock_num -= num  
-            self.stock_money = price * self.stock_num   
+            #new stock value...
+            self.stock_money = price * self.stock_num  
 
-            if(self.printBool):
-                self.print_values()
+
             print("Cash status = " + str(self.cash))
 
-    def print_return(self):
+            return True
+
+    def print_return_class(self):
         """Print return of investment in %.
 
         Returns:
             None
         """
         returns = (((self.cash + self.stock_money) -
-               self.paid_up_cap) / self.paid_up_cap) * 100
+            self.paid_up_cap) / self.paid_up_cap) * 100
 
         print("Current return value = " + str(round(returns, 2)) + "%")
+        return returns
+
+    def get_return_stock(self, price, num):
+        returns = (((self.cash + price * num) -
+            self.paid_up_cap) / self.paid_up_cap) * 100
+
+        return returns
 
     def print_values(self):
         """Print all important values.
@@ -124,7 +127,7 @@ class InvestmentPortfolio():
         """
         print("Current cash = " + str(self.cash))
         print("Current stocks = "+ str(self.stock_num))
-        print("With a stock value of = " + str(self.stock_money))
+        print("With a total stock value of = " + str(self.stock_money))
         print("\n")
 
     def deposit_cash(self, cash):
@@ -150,22 +153,29 @@ class InvestmentPortfolio():
             print("New cash status = " + str(self.cash))
 
 if __name__ == "__main__":
-    eth = InvestmentPortfolio()
+    xrp = InvestmentPortfolio(31)
 
     # eth.buy(price=312.46, num=0.09547)    #buy date = 20 oct
-    eth.buy(price=293.28, num=0.1010)    #buy date = 20 oct
-
+    # eth.buy(price=293.28, num=0.1010)    #buy date = 20 oct
+    
+    #FIXME: buy whole stock 
+    # xrp.buy_whole_stocks(price=0.21229)
+    xrp.buy(price=0.21229, num=145)
 
     # eth.sell_all(325.20)   #sell date = 29 apr
-    eth.sell(price=297.74, num=float(eth.stock_num/2))
-    eth.sell(price=301.75, num=float(eth.stock_num/2))
+    xrp.sell(price=0.21580, num=int(xrp.stock_num/2))
+    # eth.sell(price=301.75, num=float(eth.stock_num/2))
+
+    xrp.print_return_class()
+
+    xrp.sell_all(price=0.21736)
 
     """
     eth.buy(0.15582, 100)    #buy date = 27 jun
     eth.sell(0.19118)   #sell date = 27 jul
     """
 
-    eth.print_return()
+    xrp.print_return_class()
 
-    print("cash = ", eth.cash)
+    print("cash = ", xrp.cash)
     

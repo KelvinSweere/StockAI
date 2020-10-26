@@ -131,8 +131,8 @@ class Algorithm():
         elif(MA_TYPE == "EWMA"):
             self.set_MA("EWMA")
         
-        self.BB_up = self.MA + sigma * data['Close'].rolling(window=self.npoints).std()
-        self.BB_down = self.MA - sigma * data['Close'].rolling(window=self.npoints).std()
+        self.BB_up = self.MA + sigma * self.data['Close'].rolling(window=self.npoints).std()
+        self.BB_down = self.MA - sigma * self.data['Close'].rolling(window=self.npoints).std()
 
     def get_BB(self):
         """return bolling band values
@@ -187,26 +187,4 @@ if __name__ == "__main__":
     al.set_npoints(14)
     al.set_RSI()
     al.plot_all()
-
-    RSI = al.get_RSI()
-
-    print(RSI.max())
-    print(RSI.min())
-
-    # RSI = al.get_RSI()
-    #TODO: buy when price is under 30, sell when price is above 70.
-    
-    """
-    for percentage, day in zip(data.RSI, data.days):
-        #to buy = <2 std_dev.
-        #to sell = >2 std_dev
-        
-        if(percentage <= 30):
-            #buy...
-            print("buy stock..." + day)
-
-        if(percentage>=70):
-            #sell.
-            print("sell stock..." + day)
-    """
 
