@@ -63,6 +63,8 @@ class DataCollecting():
                 return 1
 
     def plot_figure(self):
+        """Plot all data to figure.
+        """
         mpf.plot(self.data, type='candle', style='charles',
                 title=self.tckr_name,
                 ylabel='Price (€)',
@@ -81,9 +83,16 @@ class DataCollecting():
         """
 
     def get_data(self):
+        """Return data.
+
+        Returns:
+            data: data in class.
+        """
         return self.data
 
     def calculate_delta(self):
+        """Calculate difference of open and close. 
+        """
         self.data.insert(6, "Delta", self.data['Open']-self.data['Close'], True)
     
     # def getIndex(self):
@@ -97,9 +106,7 @@ if __name__ == "__main__":
     interval = 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
     period = 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max
     """
-
-    #TODO: first scope, 1d 1m prediction. 
-    #TODO: goal monthly prediction.
+    
     stock_name = 'RDSA.AS'
     dc = DataCollecting(stock_name, "5d", "1h")
     dc.plot_figure()

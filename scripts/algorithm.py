@@ -40,8 +40,13 @@ class Algorithm():
         if(self.msg == True):
             print("npoints are now: ", npoints)
 
-    def set_MA(self, MA_TYPE="SMA"):
-        """Calculates the moving avarage filter with npoints.
+    def set_MA(self, MA_TYPE="EWMA"):
+        """Calculates the moving average filter with npoints.
+            
+            Args:
+                MA_TYPE (str): moving avarage type. Can be:
+                                EWMA - exponential moving average
+                                SMA - simple moving average 
         """
         MA_TYPE.upper()
         self.MA_TYPE = MA_TYPE
@@ -101,6 +106,13 @@ class Algorithm():
 
 
     def get_RSI(self):
+        """send RSI value back of the class. 
+
+        NOTE: first use set_RSI. Otherwise it can give back a warning.
+
+        Returns:
+            RSI: all RSI data.
+        """
         try:
             self.RSI
         except AttributeError:
@@ -109,9 +121,19 @@ class Algorithm():
             return self.RSI
 
     def append_RSI(self):
+        """Append RSI to class data.
+        """
         self.data['RSI'] = self.RSI
 
     def plot_RSI(self,ax = False, low_band=30, high_band=70, plot_all=False):
+        """Plot RSI.
+
+        Args:
+            ax (bool, optional): Append or plot everything separately. Defaults to False.
+            low_band (int, optional): lower band of the RSI that will be ploted.. Defaults to 30.
+            high_band (int, optional): uper band of the RSI that will be ploted. Defaults to 70.
+            plot_all (bool, optional): boolean that will be used if everything will be ploted immediately. Defaults to False.
+        """
         if(ax != False):
             plt.plot(self.data['Day'], self.RSI)
             plt.axhline(low_band, alpha=0.5, color='r', linestyle='--')
@@ -124,6 +146,10 @@ class Algorithm():
 
     def set_BB(self, sigma=2, MA_TYPE="EWMA"):
         """set Bollingerbands with npoints.
+
+        Args:
+            sigma (int, optional): Sigma value of the Bolling Bands. Defaults to 2.
+            MA_TYPE (str, optional): Moving average type. See set_MA for more info. Defaults to "EWMA".
         """
         # MA = self.data["Close"].ewm(span=self.npoints).mean()
         if(MA_TYPE == "SMA"):
@@ -158,6 +184,8 @@ class Algorithm():
             plt.show()
 
     def plot_all(self):
+        """Plot all indicators.
+        """
         fig, (ax1, ax2) = plt.subplots(2, sharex=True)
 
         plt.title('All algorithm structures.')

@@ -114,6 +114,15 @@ class InvestmentPortfolio():
         return returns
 
     def get_return_stock(self, price, num):
+        """return the returnsvalue of stock.
+
+        Args:
+            price (float): price of one stock.
+            num (float): number of stocks. Is a float because of the crypto currancy.
+
+        Returns:
+            returns: returnvalue in percentage.
+        """
         returns = (((self.cash + price * num) -
             self.paid_up_cap) / self.paid_up_cap) * 100
 
@@ -131,7 +140,7 @@ class InvestmentPortfolio():
         print("\n")
 
     def deposit_cash(self, cash):
-        """Send cash to current portfolio.
+        """Send cash to portfolio class.
 
         Args:
             cash (float): total value of cash that will be added (+) to account.
@@ -141,7 +150,7 @@ class InvestmentPortfolio():
         print("New cash status = " + str(self.cash))    
 
     def withdraw_cash(self, cash):
-        """Get cash from current portfolio
+        """Get cash from portfolio
 
         Args:
             cash (float): total value of cash that will be get (-) from account.
