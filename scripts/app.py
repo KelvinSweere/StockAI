@@ -1,3 +1,19 @@
+"""
+Calculate trading strategy for Ripple (XRP).
+
+Buy when:
+    RSI<30
+    BollingBands < 2std_dev
+
+Sell when:
+    RSI > 70
+    BollingBands < 2std_dev
+    financial return > ...%
+
+Calculate financial return value from 0.0% to 10.0% with steps of 0.1%.
+"""
+
+
 from data_collecting import DataCollecting
 from money import InvestmentPortfolio
 from algorithm import Algorithm
@@ -8,8 +24,8 @@ stock_name = 'XRP-EUR'
 dc = DataCollecting(stock_name, "1mo", "1h")
 data = dc.get_data()
 
-print("data punten = " + str(len(data.index)))
-print("Laatste datapunt = " + str(data.index[-1]))
+print("total of datapoints = " + str(len(data.index)))
+print("latest datapoint = " + str(data.index[-1]))
 
 al = Algorithm(data) 
 
@@ -17,16 +33,14 @@ al.set_npoints(20)
 al.set_BB()
 al.set_npoints(14)
 al.set_RSI()
-# al.plot_all()
+al.plot_all()
 
 RSI = al.get_RSI()
 BB_up, BB_down = al.get_BB()
 
-#TODO: buy when price is under 30, sell when price is above 70.
-
 port2 = InvestmentPortfolio(30)
 
-port2.buy(price=data['Close'][0], num=100)
+port2.buy_whole_stocks(price=data['Close'][0])
 
 high_rend, highest_val_procent = 0, 0
 
