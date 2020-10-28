@@ -11,30 +11,37 @@ class InvestmentPortfolio():
         self.printBool = False
         self.TAKER_FEE = 0.26 / 100  #0.16% KRAKEN
 
-    def buy_whole_stocks(self, price):
+    def buy_whole_stocks(self, price,whole=True):
         """Buy stocks with price per stock.
 
         Args:
             price (float): price per stock.
         """
-        if(self.cash > price):
+        if(price > self.cash):
             return False
         else:
             stock_that_can_be_bought = self.cash / price
+            stock_fee = stock_that_can_be_bought * price * self.TAKER_FEE #fee in price currancy.
 
-            fee_price = stock_that_can_be_bought * price * self.TAKER_FEE
+            stock_that_can_be_bought -= stock_fee
 
-            if(self.stock_money - stock_that_can_be_bought * price - fee_price < 0 ):
-                stock_that_can_be_bought-=1
+            if(whole==True):    
+                stock_that_can_be_bought = int(stock_that_can_be_bought)    
 
-            print(str(int(stock_that_can_be_bought)) +
+            """
+            print("stocks_that_can_be_bought = " + str(stock_that_can_be_bought))
+            print("total price stock = " + str(stock_that_can_be_bought*price))
+            print("fee price = " + str(stock_fee*price))
+            """
+                
+            print(str(stock_that_can_be_bought) +
                     " stocks bought with a price of €" + str(price) + 
-                    " with fee price of €" + str(fee_price))
-
-            self.stock_num = int(stock_that_can_be_bought)
-            self.stock_money = self.stock_num * price + fee_price
-            self.cash = self.cash - self.stock_num * price
-
+                    " with fee price of €" + str(stock_fee * price))
+            
+            self.stock_num += stock_that_can_be_bought
+            self.stock_money += stock_that_can_be_bought * price
+            self.cash -= (stock_that_can_be_bought * price) - (stock_fee * price)
+            
             if(self.printBool):
                 self.print_values()
 
@@ -164,27 +171,22 @@ class InvestmentPortfolio():
 if __name__ == "__main__":
     xrp = InvestmentPortfolio(31)
 
-    # eth.buy(price=312.46, num=0.09547)    #buy date = 20 oct
+    # eth.buy(price=312.46, num=0.09547)    #buy date = 20 octf
     # eth.buy(price=293.28, num=0.1010)    #buy date = 20 oct
     
     #FIXME: buy whole stock 
-    # xrp.buy_whole_stocks(price=0.21229)
-    xrp.buy(price=0.21229, num=145)
+    xrp.buy_whole_stocks(price=0.21229, whole=True)
+    # xrp.buy_whole_stocks(price=1.25, whole=False)
+
+    # xrp.buy(price=0.21229, num=145)
 
     # eth.sell_all(325.20)   #sell date = 29 apr
     xrp.sell(price=0.21580, num=int(xrp.stock_num/2))
     # eth.sell(price=301.75, num=float(eth.stock_num/2))
 
     xrp.print_return_class()
-
+    print("\n\n")
     xrp.sell_all(price=0.21736)
 
-    """
-    eth.buy(0.15582, 100)    #buy date = 27 jun
-    eth.sell(0.19118)   #sell date = 27 jul
-    """
 
-    xrp.print_return_class()
-
-    print("cash = ", xrp.cash)
-    
+    xrp.print_return_class()   
