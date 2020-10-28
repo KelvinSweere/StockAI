@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 stock_name = 'XRP-EUR'
-dc = DataCollecting(stock_name, "3mo", "1h")
+dc = DataCollecting(stock_name, "1mo", "1h")
 data = dc.get_data()
 
 print("data punten = " + str(len(data.index)))
@@ -49,8 +49,8 @@ for val_procent in array_prc:  #from 0.0% to 0.2% with 0.1% steps.
             #buy...
             # print("RSI < 30")
             if(data['Close'][day] < BB_down[day]):
-                bol = port.buy(price=data['Close'][day], num=100)
-                # bol = port.buy_whole_stocks(price=data['Close'][day])
+                # bol = port.buy(price=data['Close'][day], num=100)
+                bol = port.buy_whole_stocks(price=data['Close'][day])
 
                 if(bol):
                     print("buy stock..." + str(day) + "\n")
