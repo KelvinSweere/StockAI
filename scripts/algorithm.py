@@ -134,14 +134,11 @@ class Algorithm():
             high_band (int, optional): uper band of the RSI that will be ploted. Defaults to 70.
             plot_all (bool, optional): boolean that will be used if everything will be ploted immediately. Defaults to False.
         """
-        if(ax != False):
-            plt.plot(self.data['Day'], self.RSI)
-            plt.axhline(low_band, alpha=0.5, color='r', linestyle='--')
-            plt.axhline(high_band, alpha=0.5, color='r', linestyle='--') 
-        else:
-            plt.plot(self.data['Day'], self.RSI)
-            plt.axhline(low_band, alpha=0.5, color='r', linestyle='--')
-            plt.axhline(high_band, alpha=0.5, color='r', linestyle='--')
+        plt.plot(self.data['Day'], self.RSI)
+        plt.axhline(low_band, alpha=0.5, color='r', linestyle='--')
+        plt.axhline(high_band, alpha=0.5, color='r', linestyle='--')
+        plt.ylim(0,100)
+        if(ax == False):
             plt.show()
 
     def set_BB(self, sigma=2, MA_TYPE="EWMA"):
